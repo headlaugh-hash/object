@@ -12,6 +12,11 @@ import javax.swing.*;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * 主控制器：可以用两种方式启动
+ * 1) new MainController() -> 只打开登录窗口（LoginFrame 会在登录成功时创建 MainFrame 并 new MainController(mainFrame)）
+ * 2) new MainController(mainFrame) -> 绑定事件并刷新数据（用于 LoginFrame 登录成功后）
+ */
 public class MainController {
     private JobDAO jobDAO = new JobDAO();
     private UserDAO userDAO = new UserDAO();
@@ -19,13 +24,25 @@ public class MainController {
 
     private MainFrame mainFrame;
 
+    /**
+     * 无参构造：仅用来启动登录（或保留兼容旧 main 启动方式）
+     */
     public MainController() {
         SwingUtilities.invokeLater(() -> {
-            mainFrame = new MainFrame();
-            bindListeners();
-            refreshAll();
-            mainFrame.setVisible(true);
+            // 只显示登录窗口，登录成功后 LoginFrame 会创建 MainFrame 并 new MainController(mainFrame)
+            LoginFrame login = new LoginFrame();
+            login.setVisible(true);
         });
+    }
+
+    /**
+     * 当 MainFrame 已由登录流程创建（带有 AuthUser）时，调用此构造器来绑定事件并刷新数据
+     */
+    public MainController(MainFrame mainFrame) {
+        this.mainFrame = mainFrame;
+        bindListeners();
+        refreshAll();
+        this.mainFrame.setVisible(true);
     }
 
     private void bindListeners() {
